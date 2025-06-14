@@ -1,52 +1,39 @@
-// File: functions/api/analyzeVideo.js
+// File: functions/api/analyzeVideo.js (Phiên bản nâng cấp)
 
-/**
- * Hàm này hoạt động như một "người trung gian" an toàn.
- * Nó nhận yêu cầu từ trang web của bạn, sau đó bí mật thêm API key vào
- * và gửi yêu cầu đó đến Google Gemini.
- * Cuối cùng, nó trả kết quả về lại cho trang web.
- */
 export async function onRequestPost({ request, env }) {
   try {
-    // Lấy dữ liệu mà người dùng gửi lên từ trang web
-    const clientData = await request.json();
-
-    // Lấy API Key đã được lưu an toàn trên Cloudflare
-    const GEMINI_API_KEY = env.GEMINI_API_KEY;
-
-    // Kiểm tra xem API Key đã được thiết lập chưa
-    if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured.' }), { status: 500 });
+    // Lấy địa chỉ Ngrok đã được lưu an toàn trên Cloudflare
+    const NGROK_URL = env.NGROK_URL;
+    if (!NGROK_URL) {
+      return new Response(JSON.stringify({ error: 'NGROK_URL is not configured.' }), { status: 500 });
     }
 
-    // Địa chỉ của Gemini API
-    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    // Lấy dữ liệu mà trang web gửi lên (ví dụ: nội dung chat)
+    const clientData = await request.json();
 
-    // Chuẩn bị dữ liệu để gửi cho Gemini
-    const geminiPayload = {
-      // Chúng ta sẽ xây dựng phần này chi tiết hơn ở giai đoạn sau
-      // Bây giờ chỉ cần gửi một yêu cầu văn bản đơn giản để kiểm tra
-      contents: clientData.contents 
-    };
+    // Địa chỉ đầy đủ của "cổng nhận lệnh" trên máy tính của bạn
+    const localServerUrl = `${NGROK_URL}/execute`;
 
-    // Gửi yêu cầu đến Gemini
-    const geminiResponse = await fetch(geminiApiUrl, {
+    // Gửi yêu cầu qua "cây cầu" Ngrok đến máy tính của bạn
+    const localServerResponse = await fetch(localServerUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiPayload),
+      headers: {
+        'Content-Type': 'application/json',
+        // Dòng này rất quan trọng để tránh lỗi từ Ngrok
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify(clientData),
     });
 
-    // Lấy kết quả từ Gemini
-    const geminiResult = await geminiResponse.json();
+    // Lấy phản hồi từ máy tính của bạn và gửi về lại cho trang web
+    const responseData = await localServerResponse.json();
 
-    // Gửi kết quả về lại cho trang web của bạn
-    return new Response(JSON.stringify(geminiResult), {
+    return new Response(JSON.stringify(responseData), {
       headers: { 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    // Báo lỗi nếu có gì đó sai
     console.error('Proxy Error:', error);
-    return new Response(JSON.stringify({ error: 'An internal server error occurred.' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Failed to connect to local server via Ngrok.' }), { status: 500 });
   }
 }
