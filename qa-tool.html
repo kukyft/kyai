@@ -33,15 +33,15 @@
 
     <div class="w-full max-w-2xl bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-2xl p-6 md:p-8 ring-1 ring-white/10">
         <div class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Hỏi đáp cùng Gemini</h1>
-            <p class="text-slate-400 mt-2">Nhập câu hỏi của bạn và nhận phản hồi từ AI.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Bảng điều khiển Kyai</h1>
+            <p class="text-slate-400 mt-2">Gửi lệnh từ đây đến cỗ máy AI ở nhà.</p>
         </div>
 
         <div class="space-y-4">
-            <textarea id="promptInput" class="w-full h-32 p-4 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition placeholder:text-slate-500" placeholder="Ví dụ: Viết một bài thơ 4 câu về mưa..."></textarea>
+            <textarea id="promptInput" class="w-full h-32 p-4 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition placeholder:text-slate-500" placeholder="Nhập lệnh của bạn..."></textarea>
 
             <button id="submitButton" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-lg shadow-sky-500/20">
-                <span id="buttonText">Gửi Yêu Cầu</span>
+                <span id="buttonText">Gửi Lệnh</span>
             </button>
         </div>
 
@@ -49,8 +49,8 @@
             <div class="loader"></div>
         </div>
 
-        <div id="resultContainer" class="mt-6 p-4 bg-black/20 rounded-lg hidden ring-1 ring-slate-700">
-            <h3 class="font-bold text-lg mb-2 text-slate-300">Kết quả từ Gemini:</h3>
+        <div id="resultContainer" class="mt-6 p-4 bg-green-900/30 border border-green-700/50 text-green-300 rounded-lg hidden">
+            <h3 class="font-bold text-lg mb-2 text-white">Phản hồi từ Máy tính:</h3>
             <div id="resultText" class="text-slate-300 whitespace-pre-wrap font-mono text-sm"></div>
         </div>
 
@@ -65,7 +65,6 @@
     </footer>
 
     <script>
-        // Javascript không thay đổi, chỉ HTML và CSS
         const submitButton = document.getElementById('submitButton');
         const promptInput = document.getElementById('promptInput');
         const resultContainer = document.getElementById('resultContainer');
@@ -86,13 +85,14 @@
             resultContainer.classList.add('hidden');
             errorContainer.classList.add('hidden');
             submitButton.disabled = true;
-            buttonText.textContent = 'Đang xử lý...';
+            buttonText.textContent = 'Đang gửi...';
 
             try {
                 const response = await fetch('/api/analyzeVideo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        // Giữ nguyên cấu trúc này để tương thích với code Python
                         contents: [{
                             parts: [{ text: prompt }]
                         }]
@@ -106,12 +106,14 @@
 
                 const data = await response.json();
 
-                if (data.candidates && data.candidates.length > 0) {
-                    const textResponse = data.candidates[0].content.parts[0].text;
-                    resultText.textContent = textResponse;
+                // === PHẦN SỬA LỖI NẰM Ở ĐÂY ===
+                // Bây giờ chúng ta kiểm tra phản hồi từ công tắc Python
+                if (data.status === 'success') {
+                    resultText.textContent = data.message;
                     resultContainer.classList.remove('hidden');
                 } else {
-                    throw new Error('Không nhận được phản hồi hợp lệ từ Gemini.');
+                    // Nếu có lỗi từ phía Python, hiển thị lỗi đó
+                    throw new Error(data.message || 'Phản hồi không thành công từ máy tính.');
                 }
 
             } catch (error) {
@@ -121,7 +123,7 @@
             } finally {
                 loadingIndicator.classList.add('hidden');
                 submitButton.disabled = false;
-                buttonText.textContent = 'Gửi Yêu Cầu';
+                buttonText.textContent = 'Gửi Lệnh';
             }
         });
     </script>
