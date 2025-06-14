@@ -5,32 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ngôi Nhà AI Kyai - Danh mục Công cụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            background-image: radial-gradient(circle at 1px 1px, #334155 1px, transparent 0);
+            background-size: 2rem 2rem;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200">
-    <div class="container mx-auto px-4 py-12">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-white">Ngôi Nhà AI Kyai</h1>
-            <p class="text-gray-400 mt-3 text-lg">Tập hợp các công cụ AI được tạo bởi Gemini</p>
+<body class="text-gray-200">
+    <div class="container mx-auto px-4 py-16">
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
+                Ngôi Nhà AI Kyai
+            </h1>
+            <p class="text-slate-400 mt-4 text-lg">Tập hợp các công cụ AI được tạo bởi Gemini</p>
         </header>
 
         <main>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
                 <!-- Công cụ 1: Hỏi đáp cùng Gemini -->
-                <a href="/qa-tool.html" class="block bg-gray-800 rounded-lg shadow-xl p-6 hover:bg-gray-700/80 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
-                    <h2 class="text-2xl font-bold text-white mb-2">Hỏi đáp cùng Gemini</h2>
-                    <p class="text-gray-400">Một chatbot đơn giản để bạn có thể trò chuyện, đặt câu hỏi và nhận câu trả lời trực tiếp từ mô hình Gemini 1.5 Flash.</p>
+                <a href="/qa-tool.html" class="group block bg-slate-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 ring-1 ring-white/10 hover:ring-sky-400 transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="bg-sky-500/10 p-3 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-400">
+                                <path d="m3 21 1.65-1.65a2 2 0 0 1 2.83 0L10 22l-4-4 6.37-6.37a2 2 0 1 1 2.83 2.83L12 18l-4 4 1.65-1.65a2 2 0 0 1 2.83 0L15 24l4-4-6.37-6.37a2 2 0 1 1 2.83-2.83L18 14l4 4-1.65 1.65a2 2 0 0 1-2.83 0L15 17l4 4-4-4Z"/>
+                                <path d="m21 3-4 4-1.65-1.65a2 2 0 0 0-2.83 0L10 8l4-4 6.37 6.37a2 2 0 1 0 2.83-2.83L18 4l4-4-1.65 1.65a2 2 0 0 0-2.83 0L15 5l-4 4 4-4Z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-100">Hỏi đáp Gemini</h2>
+                    </div>
+                    <p class="text-slate-400">Một chatbot đơn giản để bạn có thể trò chuyện, đặt câu hỏi và nhận câu trả lời trực tiếp từ mô hình Gemini 1.5 Flash.</p>
                 </a>
 
                 <!-- Thẻ chờ cho công cụ tiếp theo -->
-                <div class="flex items-center justify-center bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-lg p-6">
-                    <p class="text-gray-500">Công cụ tiếp theo sắp ra mắt...</p>
+                 <div class="group block bg-slate-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 ring-1 ring-white/10">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="bg-violet-500/10 p-3 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-400">
+                                <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-100">Phân tích Video</h2>
+                    </div>
+                    <p class="text-slate-400">
+                       Công cụ <span class="font-semibold text-violet-300">"Viral Hook"</span> sắp ra mắt. Tải video lên và để AI tìm ra những khoảnh khắc đắt giá nhất.
+                    </p>
                 </div>
 
             </div>
