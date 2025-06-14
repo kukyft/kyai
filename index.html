@@ -3,36 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ngôi Nhà AI Kyai</title>
+    <title>Công cụ Phân tích - Kyai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            text-align: center;
-            flex-direction: column;
-            height: 100vh; 
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+        body {
+            font-family: 'Inter', sans-serif;
         }
-        h1 { 
-            font-size: 3em;
-            font-weight: 300;
-            letter-spacing: 2px;
-            background: -webkit-linear-gradient(45deg, #00c6ff, #0072ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-        p {
-            font-size: 1.2em;
-            color: #999;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <h1>Ngôi Nhà AI Kyai</h1>
-    <p>Sắp ra mắt các công cụ AI tuyệt vời được tạo bởi Gemini.</p>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-xl p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">Ngôi Nhà AI Kyai</h1>
+            <p class="text-gray-400 mt-2">Công cụ đầu tiên: Hỏi đáp cùng Gemini</p>
+        </div>
+
+        <div class="space-y-4">
+            <textarea id="promptInput" class="w-full h-32 p-3 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Hãy mô tả một video về mèo và tôi sẽ đề xuất tiêu đề cho nó..."></textarea>
+
+            <button id="submitButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out flex items-center justify-center">
+                <span id="buttonText">Gửi Yêu Cầu</span>
+                <svg id="buttonIcon" class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </button>
+        </div>
+
+        <div id="loadingIndicator" class="hidden flex justify-center items-center mt-6">
+            <div class="loader"></div>
+        </div>
+
+        <div id="resultContainer" class="mt-6 p-4 bg-gray-700 rounded-md hidden">
+            <h3 class="font-bold text-lg mb-2 text-white">Kết quả từ Gemini:</h3>
+            <div id="resultText" class="text-gray-300 whitespace-pre-wrap"></div>
+        </div>
+
+        <div id="errorContainer" class="mt-6 p-4 bg-red-900/50 border border-red-700 text-red-300 rounded-md hidden">
+            <h3 class="font-bold text-lg mb-2">Đã có lỗi xảy ra</h3>
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <script>
+        // Lấy các phần tử trên trang
+        const submitButton = document.getElementById('submitButton');
+        const promptInput = document.getElementById('promptInput');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorText = document.getElementById('errorText');
+        const buttonText = document.getElementById('buttonText');
+
+        // Xử lý khi nhấn nút
+        submitButton.addEventListener('click', async () => {
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                alert('Vui lòng nhập nội dung.');
+                return;
+            }
+
+            // Hiện vòng xoay, ẩn kết quả cũ và lỗi
+            loadingIndicator.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+            submitButton.disabled = true;
+            buttonText.textContent = 'Đang xử lý...';
+
+            try {
+                // Gửi yêu cầu đến "người trung gian" bảo mật của bạn
+                const response = await fetch('/api/analyzeVideo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Lỗi từ máy chủ: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Hiển thị kết quả
+                if (data.candidates && data.candidates.length > 0) {
+                    const textResponse = data.candidates[0].content.parts[0].text;
+                    resultText.textContent = textResponse;
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    throw new Error('Không nhận được phản hồi hợp lệ từ Gemini.');
+                }
+
+            } catch (error) {
+                // Hiển thị lỗi
+                errorText.textContent = error.message;
+                errorContainer.classList.remove('hidden');
+                console.error('Lỗi:', error);
+
+            } finally {
+                // Ẩn vòng xoay và kích hoạt lại nút
+                loadingIndicator.classList.add('hidden');
+                submitButton.disabled = false;
+                buttonText.textContent = 'Gửi Yêu Cầu';
+            }
+        });
+    </script>
+
 </body>
 </html>
